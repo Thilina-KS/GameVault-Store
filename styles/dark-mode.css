@@ -1,0 +1,56 @@
+/* Dark Mode Styles */
+body.dark-mode {
+    --background-color: #2f3136;
+    --surface-color: #36393f;
+    --text-color: #ffffff;
+    --text-secondary: #b9bbbe;
+}
+
+body.dark-mode .header {
+    background-color: var(--surface-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .search-box input,
+body.dark-mode .filters select {
+    background-color: var(--background-color);
+    border-color: #202225;
+    color: var(--text-color);
+}
+
+body.dark-mode .game-card {
+    background-color: var(--surface-color);
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--surface-color);
+}
+
+body.dark-mode .cart-summary {
+    background-color: var(--background-color);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    color: var(--primary-color);
+}
+
+body.dark-mode .theme-toggle .fa-moon {
+    display: none;
+}
+
+body.dark-mode .theme-toggle::before {
+    font-family: "Font Awesome 6 Free";
+    content: "\f185";
+    font-weight: 900;
+} 

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVault Admin - Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/admin.css">
+</head>
+<body>
+    <nav class="admin-nav">
+        <div class="nav-brand">
+            <h1><span class="game">Game</span><span class="vault">Vault</span> Admin</h1>
+        </div>
+        <button id="logoutBtn" onclick="handleLogout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Game Management</h1>
+            <div class="header-actions">
+                <a href="../index.html" class="back-to-store">
+                    <i class="fas fa-arrow-left"></i> Back to Store
+                </a>
+                <button id="addGameBtn" class="primary-btn" onclick="openGameModal()">
+                    <i class="fas fa-plus"></i> Add New Game
+                </button>
+            </div>
+        </div>
+
+        <div class="games-table-container">
+            <table class="games-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Genre</th>
+                        <th>Original Price</th>
+                        <th>Discounted Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="gamesTableBody">
+                    <!-- Games will be loaded here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Game</h2>
+                <button class="close-modal" onclick="closeGameModal()">&times;</button>
+            </div>
+            <form id="gameForm" onsubmit="return handleGameSubmit(event)">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="image">Image URL</label>
+                    <input type="url" id="image" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="originalPrice">Original Price</label>
+                        <input type="number" id="originalPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discountedPrice">Discounted Price</label>
+                        <input type="number" id="discountedPrice" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="genre">Genre</label>
+                        <select id="genre" required>
+                            <option value="action">Action</option>
+                            <option value="rpg">RPG</option>
+                            <option value="fps">FPS</option>
+                            <option value="strategy">Strategy</option>
+                            <option value="sports">Sports</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="releaseDate">Release Date</label>
+                        <input type="date" id="releaseDate" required>
+                    </div>
+                </div>
+                <div class="system-requirements">
+                    <h3>System Requirements</h3>
+                    <div class="form-group">
+                        <label for="os">Operating System</label>
+                        <input type="text" id="os" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="processor">Processor</label>
+                        <input type="text" id="processor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="memory">Memory</label>
+                        <input type="text" id="memory" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="graphics">Graphics</label>
+                        <input type="text" id="graphics" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="storage">Storage</label>
+                        <input type="text" id="storage" required>
+                    </div>
+                </div>
+                <input type="hidden" id="gameId">
+                <button type="submit" class="submit-btn">Save Game</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../data/games.js"></script>
+    <script src="admin-auth.js"></script>
+    <script src="admin-panel.js"></script>
+</body>
+</html> 
