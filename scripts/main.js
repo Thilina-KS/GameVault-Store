@@ -121,19 +121,52 @@ const gameUpdateHandler = {
     checkMissedUpdates() {
         const lastUpdate = localStorage.getItem('lastGameUpdate');
         if (lastUpdate) {
-            const { data, timestamp } = JSON.parse(lastUpdate);
-            const lastVisit = localStorage.getItem('lastVisit') || 0;
-            
-            if (timestamp > lastVisit) {
-                this.handleUpdate(data, true);
+            try {
+                const { data, timestamp } = JSON.parse(lastUpdate);
+                const lastVisit = localStorage.getItem('lastVisit') || 0;
+                
+                if (timestamp > lastVisit && this.isValidUpdate(data)) {
+                    this.handleUpdate(data, true);
+                }
+            } catch (error) {
+                console.error('Error checking missed updates:', error);
             }
         }
         
         // Update last visit timestamp
         localStorage.setItem('lastVisit', Date.now().toString());
     },
+
+    isValidUpdate(update) {
+        if (!update || !update.type) return false;
+
+        if (update.type === 'delete') {
+            return update.gameId != null;
+        }
+
+        if (update.type === 'add' || update.type === 'update') {
+            const game = update.game;
+            return game && 
+                   game.id != null &&
+                   game.title &&
+                   game.image &&
+                   game.originalPrice != null &&
+                   game.discountedPrice != null &&
+                   game.genre &&
+                   game.releaseDate &&
+                   game.systemRequirements;
+        }
+
+        return false;
+    },
     
     handleUpdate(update, isMissed = false) {
+        // Validate the update before processing
+        if (!this.isValidUpdate(update)) {
+            console.warn('Invalid update received:', update);
+            return;
+        }
+
         loadGames();
         filterGames();
         
