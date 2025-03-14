@@ -91,22 +91,118 @@ function filterGames() {
 searchInput.addEventListener('input', filterGames);
 categoryFilter.addEventListener('change', filterGames);
 
+// Game Update Handler
+const gameUpdateHandler = {
+    channel: new BroadcastChannel('game-updates'),
+    
+    init() {
+        this.channel.onmessage = (event) => {
+            const update = event.data;
+            this.handleUpdate(update);
+        };
+        
+        // Check for updates that happened while page was closed
+        this.checkMissedUpdates();
+    },
+    
+    checkMissedUpdates() {
+        const lastUpdate = localStorage.getItem('lastGameUpdate');
+        if (lastUpdate) {
+            const { data, timestamp } = JSON.parse(lastUpdate);
+            const lastVisit = localStorage.getItem('lastVisit') || 0;
+            
+            if (timestamp > lastVisit) {
+                this.handleUpdate(data, true);
+            }
+        }
+        
+        // Update last visit timestamp
+        localStorage.setItem('lastVisit', Date.now().toString());
+    },
+    
+    handleUpdate(update, isMissed = false) {
+        loadGames();
+        filterGames();
+        
+        let updateDetails;
+        switch (update.type) {
+            case 'add':
+                updateDetails = {
+                    title: 'New Game Added!',
+                    message: `"${update.game.title}" is now available`,
+                    icon: '🎮'
+                };
+                break;
+            case 'update':
+                updateDetails = {
+                    title: 'Game Updated',
+                    message: `"${update.game.title}" has been updated`,
+                    icon: '📝'
+                };
+                break;
+            case 'delete':
+                updateDetails = {
+                    title: 'Game Removed',
+                    message: 'A game has been removed from the store',
+                    icon: '🗑️'
+                };
+                break;
+        }
+        
+        if (updateDetails) {
+            showUpdateNotification(updateDetails, isMissed);
+        }
+    }
+};
+
+function showUpdateNotification(details, isMissed = false) {
+    const notification = document.createElement('div');
+    notification.className = 'game-update-notification';
+    
+    const missedTag = isMissed ? '<span class="missed-update">While you were away</span>' : '';
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">${details.icon}</div>
+            <div class="notification-text">
+                <h4>${details.title}</h4>
+                ${missedTag}
+                <p>${details.message}</p>
+            </div>
+            <button class="notification-close">&times;</button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    });
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadGames();
     renderGames(filteredGames);
+    
+    // Initialize game update handler
+    gameUpdateHandler.init();
 
     // Start the game data sync
     if (window.gameDataManager) {
         window.gameDataManager.startSyncInterval();
     }
-
-    // Listen for game updates
-    window.addEventListener('gamesUpdated', () => {
-        loadGames();
-        filterGames(); // This will re-render with current filters
-        showUpdateNotification();
-    });
 
     // Mobile Menu Functionality
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
@@ -135,22 +231,4 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-});
-
-function showUpdateNotification() {
-    const notification = document.createElement('div');
-    notification.className = 'game-update-notification';
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas fa-sync-alt"></i>
-            <span>Game list has been updated!</span>
-        </div>
-    `;
-    document.body.appendChild(notification);
-
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-} 
+}); 

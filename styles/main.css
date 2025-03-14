@@ -739,54 +739,113 @@ body {
 .game-update-notification {
     position: fixed;
     top: calc(var(--header-height) + 20px);
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
-    padding: 12px 24px;
+    padding: 15px;
     border-radius: var(--border-radius);
     box-shadow: var(--neon-glow);
     z-index: 1001;
-    animation: slideDown 0.3s ease-out;
+    animation: slideInRight 0.3s ease-out;
+    max-width: 350px;
+    width: calc(100% - 40px);
 }
 
-.game-update-notification .notification-content {
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+}
+
+.notification-icon {
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
-.game-update-notification i {
-    animation: rotate 1s linear infinite;
+.notification-text {
+    flex: 1;
+}
+
+.notification-text h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.notification-text p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.missed-update {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin: 4px 0;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.notification-close:hover {
+    opacity: 1;
 }
 
 .game-update-notification.fade-out {
-    animation: slideUp 0.3s ease-out forwards;
+    animation: slideOutRight 0.3s ease-out forwards;
 }
 
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes slideDown {
+@keyframes slideInRight {
     from {
-        transform: translate(-50%, -100%);
+        transform: translateX(100%);
         opacity: 0;
     }
     to {
-        transform: translate(-50%, 0);
+        transform: translateX(0);
         opacity: 1;
     }
 }
 
-@keyframes slideUp {
+@keyframes slideOutRight {
     from {
-        transform: translate(-50%, 0);
+        transform: translateX(0);
         opacity: 1;
     }
     to {
-        transform: translate(-50%, -100%);
+        transform: translateX(100%);
         opacity: 0;
+    }
+}
+
+/* Mobile adjustments for notifications */
+@media (max-width: 768px) {
+    .game-update-notification {
+        top: auto;
+        bottom: 20px;
+        right: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
     }
 } 
