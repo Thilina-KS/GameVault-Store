@@ -10,23 +10,37 @@ let gamesData = [...games]; // Create a mutable copy of the games array
 
 // Functions
 function renderGamesTable() {
-    gamesTableBody.innerHTML = gamesData.map(game => `
+    if (!gamesData || !Array.isArray(gamesData)) {
+        gamesTableBody.innerHTML = '<tr><td colspan="6">No games available</td></tr>';
+        return;
+    }
+
+    gamesTableBody.innerHTML = gamesData.map(game => {
+        // Validate game object and its properties
+        if (!game || typeof game !== 'object') {
+            return '';
+        }
+
+        const originalPrice = game.originalPrice != null ? Number(game.originalPrice).toFixed(2) : 'N/A';
+        const discountedPrice = game.discountedPrice != null ? Number(game.discountedPrice).toFixed(2) : 'N/A';
+        
+        return `
         <tr>
-            <td><img src="${game.image}" alt="${game.title}" class="game-thumbnail"></td>
-            <td>${game.title}</td>
-            <td>${game.genre}</td>
-            <td>$${game.originalPrice.toFixed(2)}</td>
-            <td>$${game.discountedPrice.toFixed(2)}</td>
+            <td><img src="${game.image || ''}" alt="${game.title || 'Game'}" class="game-thumbnail"></td>
+            <td>${game.title || 'Untitled Game'}</td>
+            <td>${game.genre || 'Unknown'}</td>
+            <td>$${originalPrice}</td>
+            <td>$${discountedPrice}</td>
             <td>
-                <button onclick="editGame(${game.id})" class="action-btn edit">
+                <button onclick="editGame(${game.id || 0})" class="action-btn edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteGame(${game.id})" class="action-btn delete">
+                <button onclick="deleteGame(${game.id || 0})" class="action-btn delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function openGameModal(gameId = null) {
