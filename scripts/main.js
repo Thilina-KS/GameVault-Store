@@ -23,27 +23,40 @@ function loadGames() {
 }
 
 function formatCurrency(usdPrice) {
+    // Handle null, undefined, or invalid price values
+    if (usdPrice === null || usdPrice === undefined || isNaN(usdPrice)) {
+        return {
+            usd: 'N/A',
+            lkr: 'N/A'
+        };
+    }
+    
     return {
-        usd: `$${usdPrice.toFixed(2)}`,
-        lkr: `LKR ${(usdPrice * USD_TO_LKR).toLocaleString()}`
+        usd: `$${Number(usdPrice).toFixed(2)}`,
+        lkr: `LKR ${(Number(usdPrice) * USD_TO_LKR).toLocaleString()}`
     };
 }
 
 function renderGames(gamesToRender) {
-    if (!gamesToRender.length) {
+    if (!gamesToRender || !gamesToRender.length) {
         gamesContainer.innerHTML = '<div class="no-games">No games available</div>';
         return;
     }
 
     gamesContainer.innerHTML = gamesToRender.map(game => {
+        // Validate game object and its properties
+        if (!game || typeof game !== 'object') {
+            return '';
+        }
+
         const originalPrice = formatCurrency(game.originalPrice);
         const discountedPrice = formatCurrency(game.discountedPrice);
         
         return `
-        <div class="game-card" data-id="${game.id}">
-            <img src="${game.image}" alt="${game.title}" class="game-image">
+        <div class="game-card" data-id="${game.id || ''}">
+            <img src="${game.image || ''}" alt="${game.title || 'Game'}" class="game-image">
             <div class="game-info">
-                <h3 class="game-title">${game.title}</h3>
+                <h3 class="game-title">${game.title || 'Untitled Game'}</h3>
                 <div class="game-price">
                     <div class="price-row">
                         <span class="original-price">${originalPrice.usd}</span>
@@ -55,18 +68,18 @@ function renderGames(gamesToRender) {
                     </div>
                 </div>
                 <div class="game-specs">
-                    <p><strong>Genre:</strong> ${game.genre.charAt(0).toUpperCase() + game.genre.slice(1)}</p>
-                    <p><strong>Release Date:</strong> ${new Date(game.releaseDate).toLocaleDateString()}</p>
+                    <p><strong>Genre:</strong> ${(game.genre || 'Unknown').charAt(0).toUpperCase() + (game.genre || 'Unknown').slice(1)}</p>
+                    <p><strong>Release Date:</strong> ${game.releaseDate ? new Date(game.releaseDate).toLocaleDateString() : 'TBA'}</p>
                     <details>
                         <summary>System Requirements</summary>
-                        <p>OS: ${game.systemRequirements.os}</p>
-                        <p>Processor: ${game.systemRequirements.processor}</p>
-                        <p>Memory: ${game.systemRequirements.memory}</p>
-                        <p>Graphics: ${game.systemRequirements.graphics}</p>
-                        <p>Storage: ${game.systemRequirements.storage}</p>
+                        <p>OS: ${game.systemRequirements?.os || 'N/A'}</p>
+                        <p>Processor: ${game.systemRequirements?.processor || 'N/A'}</p>
+                        <p>Memory: ${game.systemRequirements?.memory || 'N/A'}</p>
+                        <p>Graphics: ${game.systemRequirements?.graphics || 'N/A'}</p>
+                        <p>Storage: ${game.systemRequirements?.storage || 'N/A'}</p>
                     </details>
                 </div>
-                <button class="add-to-cart" onclick="addToCart(${game.id})">
+                <button class="add-to-cart" onclick="addToCart(${game.id || 0})">
                     Add to Cart
                 </button>
             </div>
