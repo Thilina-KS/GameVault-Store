@@ -134,6 +134,44 @@ function showNotification(message) {
     }, 3000);
 }
 
+function saveGames(games) {
+    // Save to adminGamesData for syncing
+    localStorage.setItem('adminGamesData', JSON.stringify(games));
+    localStorage.setItem('adminGamesLastUpdate', Date.now().toString());
+    
+    // Also update regular gamesData
+    localStorage.setItem('gamesData', JSON.stringify(games));
+    localStorage.setItem('gamesLastUpdate', Date.now().toString());
+}
+
+function addGame(gameData) {
+    const games = loadGames();
+    const newGame = {
+        id: Date.now(), // Use timestamp as ID
+        ...gameData
+    };
+    games.push(newGame);
+    saveGames(games);
+    renderGamesTable();
+}
+
+function updateGame(gameId, updatedData) {
+    const games = loadGames();
+    const index = games.findIndex(game => game.id === gameId);
+    if (index !== -1) {
+        games[index] = { ...games[index], ...updatedData };
+        saveGames(games);
+        renderGamesTable();
+    }
+}
+
+function deleteGame(gameId) {
+    const games = loadGames();
+    const filteredGames = games.filter(game => game.id !== gameId);
+    saveGames(filteredGames);
+    renderGamesTable();
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Load games from localStorage if available

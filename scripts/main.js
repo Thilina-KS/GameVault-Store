@@ -96,6 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
     loadGames();
     renderGames(filteredGames);
 
+    // Start the game data sync
+    if (window.gameDataManager) {
+        window.gameDataManager.startSyncInterval();
+    }
+
+    // Listen for game updates
+    window.addEventListener('gamesUpdated', () => {
+        loadGames();
+        filterGames(); // This will re-render with current filters
+        showUpdateNotification();
+    });
+
     // Mobile Menu Functionality
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navLinks = document.querySelector('.nav-links');
@@ -123,4 +135,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-}); 
+});
+
+function showUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'game-update-notification';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-sync-alt"></i>
+            <span>Game list has been updated!</span>
+        </div>
+    `;
+    document.body.appendChild(notification);
+
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+} 
