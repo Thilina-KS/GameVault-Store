@@ -6,7 +6,7 @@ const categoryFilter = document.getElementById('category-filter');
 
 // Constants
 const USD_TO_LKR = 320;
-const FALLBACK_GAME_IMAGE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMjAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMzIwIDE1MCI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzNDNhNDAiLz48dGV4dCB4PSI1MCUiIHk9IjQwJSIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIj5HYW1lIEltYWdlPC90ZXh0Pjx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYWRiNWJkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiPk5vdCBBdmFpbGFibGU8L3RleHQ+PC9zdmc+";
+const FALLBACK_GAME_IMAGE = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMjAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMzIwIDE1MCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmM1MzY0OyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzQxN2Y5YjsiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE1MCIgZmlsbD0idXJsKCNncmFkKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiPkdhbWUgSW1hZ2U8L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNhZGI1YmQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VGVtcG9yYXJpbHkgVW5hdmFpbGFibGU8L3RleHQ+PC9zdmc+";
 
 // Format currency
 function formatCurrency(amount) {
@@ -35,7 +35,7 @@ function initGames() {
                     {
                         id: 1,
                         title: "Red Dead Redemption 2",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/rdr2.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 39.99,
                         genre: "Action",
@@ -51,7 +51,7 @@ function initGames() {
                     {
                         id: 2,
                         title: "Cyberpunk 2077",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/cyberpunk.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 29.99,
                         genre: "RPG",
@@ -67,7 +67,7 @@ function initGames() {
                     {
                         id: 3,
                         title: "Elden Ring",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/elden-ring.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 49.99,
                         genre: "RPG",
@@ -83,7 +83,7 @@ function initGames() {
                     {
                         id: 4,
                         title: "God of War",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1593500/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/god-of-war.jpg",
                         originalPrice: 49.99,
                         discountedPrice: 39.99,
                         genre: "Action",
@@ -99,7 +99,7 @@ function initGames() {
                     {
                         id: 5,
                         title: "Counter-Strike 2",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/730/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/cs2.jpg",
                         originalPrice: 0,
                         discountedPrice: 0,
                         genre: "FPS",
@@ -115,7 +115,7 @@ function initGames() {
                     {
                         id: 6,
                         title: "Baldur's Gate 3",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1086940/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/bg3.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 59.99,
                         genre: "RPG",
@@ -131,7 +131,7 @@ function initGames() {
                     {
                         id: 7,
                         title: "EA SPORTS FC™ 24",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/2195250/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/fc24.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 39.99,
                         genre: "Sports",
@@ -147,7 +147,7 @@ function initGames() {
                     {
                         id: 8,
                         title: "Lethal Company",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1966720/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/lethal-company.jpg",
                         originalPrice: 9.99,
                         discountedPrice: 9.99,
                         genre: "Survival",
@@ -163,7 +163,7 @@ function initGames() {
                     {
                         id: 9,
                         title: "Palworld",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1623730/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/palworld.jpg",
                         originalPrice: 29.99,
                         discountedPrice: 29.99,
                         genre: "Survival",
@@ -179,7 +179,7 @@ function initGames() {
                     {
                         id: 10,
                         title: "Helldivers 2",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1657180/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/helldivers2.jpg",
                         originalPrice: 39.99,
                         discountedPrice: 39.99,
                         genre: "Action",
@@ -195,7 +195,7 @@ function initGames() {
                     {
                         id: 11,
                         title: "Grand Theft Auto V",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/gtav.jpg",
                         originalPrice: 39.99,
                         discountedPrice: 19.99,
                         genre: "Action",
@@ -211,7 +211,7 @@ function initGames() {
                     {
                         id: 12,
                         title: "The Last of Us™ Part I",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1888930/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/tlou.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 39.99,
                         genre: "Action",
@@ -227,7 +227,7 @@ function initGames() {
                     {
                         id: 13,
                         title: "Resident Evil 4",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/2050650/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/re4.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 39.99,
                         genre: "Survival",
@@ -243,7 +243,7 @@ function initGames() {
                     {
                         id: 14,
                         title: "Hogwarts Legacy",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/990080/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/hogwarts.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 29.99,
                         genre: "RPG",
@@ -259,7 +259,7 @@ function initGames() {
                     {
                         id: 15,
                         title: "Sea of Thieves",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1172620/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/sea-of-thieves.jpg",
                         originalPrice: 39.99,
                         discountedPrice: 19.99,
                         genre: "Action",
@@ -275,7 +275,7 @@ function initGames() {
                     {
                         id: 16,
                         title: "Marvel's Spider-Man 2",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1817070/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/spiderman2.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 59.99,
                         genre: "Action",
@@ -291,7 +291,7 @@ function initGames() {
                     {
                         id: 17,
                         title: "Diablo IV",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/2344520/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/diablo4.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 49.99,
                         genre: "RPG",
@@ -307,7 +307,7 @@ function initGames() {
                     {
                         id: 18,
                         title: "Lies of P",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1627720/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/lies-of-p.jpg",
                         originalPrice: 59.99,
                         discountedPrice: 44.99,
                         genre: "Action",
@@ -323,7 +323,7 @@ function initGames() {
                     {
                         id: 19,
                         title: "Starfield",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1716740/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/starfield.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 59.99,
                         genre: "RPG",
@@ -339,7 +339,7 @@ function initGames() {
                     {
                         id: 20,
                         title: "Mortal Kombat 1",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1971870/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/mk1.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 49.99,
                         genre: "Action",
@@ -355,7 +355,7 @@ function initGames() {
                     {
                         id: 21,
                         title: "Like a Dragon: Infinite Wealth",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1871050/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/like-a-dragon.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 59.99,
                         genre: "RPG",
@@ -371,7 +371,7 @@ function initGames() {
                     {
                         id: 22,
                         title: "Tekken 8",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1778820/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/tekken8.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 64.99,
                         genre: "Action",
@@ -387,7 +387,7 @@ function initGames() {
                     {
                         id: 23,
                         title: "Dragon's Dogma 2",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/2054970/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/dragons-dogma2.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 69.99,
                         genre: "RPG",
@@ -403,7 +403,7 @@ function initGames() {
                     {
                         id: 24,
                         title: "Rise of the Ronin",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/1462910/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/rise-of-ronin.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 69.99,
                         genre: "Action",
@@ -419,7 +419,7 @@ function initGames() {
                     {
                         id: 25,
                         title: "Final Fantasy VII Rebirth",
-                        image: "https://cdn.akamai.steamstatic.com/steam/apps/2399830/header.jpg",
+                        image: "https://raw.githubusercontent.com/Thilina-KS/GameVault-Store/main/images/ff7r.jpg",
                         originalPrice: 69.99,
                         discountedPrice: 69.99,
                         genre: "RPG",
