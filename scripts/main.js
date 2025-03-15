@@ -111,37 +111,37 @@ let lastUpdateTimestamp = Date.now();
 gameUpdateChannel.onmessage = (event) => {
     const update = event.data;
     
-    // Update the games in localStorage
-    const games = JSON.parse(localStorage.getItem('gamesData')) || [];
-    
+    // Update both window.games and filteredGames
     switch(update.type) {
         case 'add':
-            games.push(update.game);
+            window.games.push(update.game);
             showUpdateNotification('New Game Added', `${update.game.title} has been added to the store!`);
             break;
             
         case 'edit':
-            const editIndex = games.findIndex(g => g.id === update.game.id);
+            const editIndex = window.games.findIndex(g => g.id === update.game.id);
             if (editIndex !== -1) {
-                games[editIndex] = update.game;
+                window.games[editIndex] = update.game;
                 showUpdateNotification('Game Updated', `${update.game.title} has been updated!`);
             }
             break;
             
         case 'delete':
-            const deleteIndex = games.findIndex(g => g.id === update.game.id);
+            const deleteIndex = window.games.findIndex(g => g.id === update.game.id);
             if (deleteIndex !== -1) {
-                games.splice(deleteIndex, 1);
+                window.games.splice(deleteIndex, 1);
                 showUpdateNotification('Game Removed', `${update.game.title} has been removed from the store.`);
             }
             break;
     }
     
-    localStorage.setItem('gamesData', JSON.stringify(games));
+    // Update localStorage
+    localStorage.setItem('gamesData', JSON.stringify(window.games));
     lastUpdateTimestamp = update.timestamp;
     
-    // Refresh the games display
-    renderGames();
+    // Update filtered games and re-render
+    filteredGames = [...window.games];
+    filterGames(); // This will apply current search/filter and render
 };
 
 function showUpdateNotification(title, message) {
@@ -186,8 +186,10 @@ function checkForMissedUpdates() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    checkForMissedUpdates();
     loadGames();
+    window.games = window.games || [];
+    filteredGames = [...window.games];
+    checkForMissedUpdates();
     renderGames(filteredGames);
     
     // Mobile Menu Functionality
