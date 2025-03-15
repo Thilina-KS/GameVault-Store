@@ -6,9 +6,18 @@ const modalTitle = document.getElementById('modalTitle');
 
 // State
 let editingGameId = null;
-let gamesData = [...games]; // Create a mutable copy of the games array
+let gamesData = [];
 
 // Functions
+function loadGames() {
+    // Load games from localStorage if available
+    const savedGames = localStorage.getItem('gamesData');
+    if (savedGames) {
+        gamesData = JSON.parse(savedGames);
+    }
+    return gamesData;
+}
+
 function renderGamesTable() {
     if (!gamesData || !Array.isArray(gamesData)) {
         gamesTableBody.innerHTML = '<tr><td colspan="6">No games available</td></tr>';
@@ -76,32 +85,80 @@ function closeGameModal() {
 function handleGameSubmit(event) {
     event.preventDefault();
 
+    // Get form values
+    const title = document.getElementById('title').value.trim();
+    const image = document.getElementById('image').value.trim();
+    const originalPrice = document.getElementById('originalPrice').value;
+    const discountedPrice = document.getElementById('discountedPrice').value;
+    const genre = document.getElementById('genre').value.trim();
+    const releaseDate = document.getElementById('releaseDate').value;
+
+    // Validate required fields
+    if (!title) {
+        showNotification('Game title is required!');
+        return false;
+    }
+
+    if (!image) {
+        showNotification('Game image URL is required!');
+        return false;
+    }
+
+    if (!originalPrice || isNaN(originalPrice) || parseFloat(originalPrice) <= 0) {
+        showNotification('Please enter a valid original price!');
+        return false;
+    }
+
+    if (!discountedPrice || isNaN(discountedPrice) || parseFloat(discountedPrice) <= 0) {
+        showNotification('Please enter a valid discounted price!');
+        return false;
+    }
+
+    if (!genre) {
+        showNotification('Game genre is required!');
+        return false;
+    }
+
+    if (!releaseDate) {
+        showNotification('Release date is required!');
+        return false;
+    }
+
     const gameData = {
         id: editingGameId || Date.now(),
-        title: document.getElementById('title').value,
-        image: document.getElementById('image').value,
-        originalPrice: parseFloat(document.getElementById('originalPrice').value),
-        discountedPrice: parseFloat(document.getElementById('discountedPrice').value),
-        genre: document.getElementById('genre').value,
-        releaseDate: document.getElementById('releaseDate').value,
+        title,
+        image,
+        originalPrice: parseFloat(originalPrice),
+        discountedPrice: parseFloat(discountedPrice),
+        genre,
+        releaseDate,
         systemRequirements: {
-            os: document.getElementById('os').value,
-            processor: document.getElementById('processor').value,
-            memory: document.getElementById('memory').value,
-            graphics: document.getElementById('graphics').value,
-            storage: document.getElementById('storage').value
+            os: document.getElementById('os').value.trim(),
+            processor: document.getElementById('processor').value.trim(),
+            memory: document.getElementById('memory').value.trim(),
+            graphics: document.getElementById('graphics').value.trim(),
+            storage: document.getElementById('storage').value.trim()
         }
     };
+
+    // Validate that at least some system requirements are provided
+    const hasSystemRequirements = Object.values(gameData.systemRequirements).some(value => value !== '');
+    if (!hasSystemRequirements) {
+        showNotification('Please provide at least some system requirements!');
+        return false;
+    }
 
     if (editingGameId) {
         // Update existing game
         const index = gamesData.findIndex(g => g.id === editingGameId);
-        gamesData[index] = gameData;
-        broadcastGameUpdate({
-            type: 'update',
-            game: gameData,
-            timestamp: Date.now()
-        });
+        if (index !== -1) {
+            gamesData[index] = gameData;
+            broadcastGameUpdate({
+                type: 'update',
+                game: gameData,
+                timestamp: Date.now()
+            });
+        }
     } else {
         // Add new game
         gamesData.push(gameData);
@@ -125,8 +182,11 @@ function handleGameSubmit(event) {
 
 function deleteGame(gameId) {
     if (confirm('Are you sure you want to delete this game?')) {
-        const games = loadGames();
-        const updatedGames = games.filter(game => game.id !== gameId);
+        // Load current games
+        const currentGames = loadGames();
+        
+        // Filter out the deleted game
+        const updatedGames = currentGames.filter(game => game.id !== gameId);
         
         // Save the updated games list
         saveGames(updatedGames);
@@ -163,32 +223,29 @@ function showNotification(message) {
 }
 
 function saveGames(games) {
-    // Save to adminGamesData for syncing
-    localStorage.setItem('adminGamesData', JSON.stringify(games));
-    localStorage.setItem('adminGamesLastUpdate', Date.now().toString());
-    
-    // Also update regular gamesData
     localStorage.setItem('gamesData', JSON.stringify(games));
-    localStorage.setItem('gamesLastUpdate', Date.now().toString());
+    // Save last update timestamp
+    localStorage.setItem('lastGameUpdate', JSON.stringify({
+        data: { type: 'update', timestamp: Date.now() },
+        timestamp: Date.now()
+    }));
 }
 
 function addGame(gameData) {
-    const games = loadGames();
     const newGame = {
         id: Date.now(), // Use timestamp as ID
         ...gameData
     };
-    games.push(newGame);
-    saveGames(games);
+    gamesData.push(newGame);
+    saveGames(gamesData);
     renderGamesTable();
 }
 
 function updateGame(gameId, updatedData) {
-    const games = loadGames();
-    const index = games.findIndex(game => game.id === gameId);
+    const index = gamesData.findIndex(game => game.id === gameId);
     if (index !== -1) {
-        games[index] = { ...games[index], ...updatedData };
-        saveGames(games);
+        gamesData[index] = { ...gamesData[index], ...updatedData };
+        saveGames(gamesData);
         renderGamesTable();
     }
 }
@@ -209,11 +266,8 @@ function broadcastGameUpdate(updateData) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Load games from localStorage if available
-    const savedGames = localStorage.getItem('gamesData');
-    if (savedGames) {
-        gamesData = JSON.parse(savedGames);
-    }
+    // Load games from localStorage
+    loadGames();
     renderGamesTable();
 
     // Set up event listeners for the game form
