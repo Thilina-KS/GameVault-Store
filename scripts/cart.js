@@ -9,36 +9,33 @@ const cartLink = document.querySelector('.cart-link');
 
 // State
 let cart = [];
+const WHATSAPP_NUMBER = '94778945693'; // Your WhatsApp number without the + symbol
 
 // Functions
 function addToCart(gameId) {
     const game = window.games.find(g => g.id === gameId);
-    if (!game) {
-        showNotification('Error: Game not found!');
-        return;
-    }
-    
-    const existingItem = cart.find(item => item.id === gameId);
+    if (!game) return;
 
+    const existingItem = cart.find(item => item.id === gameId);
     if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity++;
     } else {
         cart.push({
             id: game.id,
             title: game.title,
-            price: game.discountedPrice,
-            image: game.image,
+            price: game.discountedPrice || game.originalPrice,
             quantity: 1
         });
     }
 
-    updateCart();
-    showNotification(`${game.title} added to cart!`);
+    updateCartCount();
+    showNotification('Game added to cart!');
 }
 
 function removeFromCart(gameId) {
     cart = cart.filter(item => item.id !== gameId);
-    updateCart();
+    updateCartUI();
+    updateCartCount();
 }
 
 function updateQuantity(gameId, newQuantity) {
@@ -49,46 +46,106 @@ function updateQuantity(gameId, newQuantity) {
     }
 }
 
-function updateCart() {
-    // Update cart count
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCount.textContent = totalItems;
-
-    // Update cart items
-    cartItems.innerHTML = cart.map(item => {
-        const itemTotal = item.price * item.quantity;
-        const formattedPrice = formatCurrency(itemTotal);
-        
-        return `
-        <div class="cart-item">
-            <img src="${item.image}" alt="${item.title}">
-            <div class="cart-item-info">
-                <h4>${item.title}</h4>
-                <div class="quantity-controls">
-                    <button onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                    <span>${item.quantity}</span>
-                    <button onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                </div>
-                <div class="price-rows">
-                    <p>${formattedPrice.usd}</p>
-                    <p>${formattedPrice.lkr}</p>
-                </div>
-            </div>
-            <button onclick="removeFromCart(${item.id})" class="remove-item">&times;</button>
-        </div>
-    `}).join('');
-
-    // Update total
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const formattedTotal = formatCurrency(total);
-    totalAmount.innerHTML = `
-        <div>${formattedTotal.usd}</div>
-        <div>${formattedTotal.lkr}</div>
-    `;
-
-    // Save cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(cart));
+function updateCartCount() {
+    if (cartCount) {
+        cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
+    }
 }
+
+function updateCartUI() {
+    if (!cartItems || !totalAmount) return;
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+        totalAmount.textContent = '$0.00';
+        return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <div class="item-details">
+                <h3>${item.title}</h3>
+                <p>$${item.price.toFixed(2)} × ${item.quantity}</p>
+            </div>
+            <button onclick="removeFromCart(${item.id})" class="remove-item">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `).join('');
+
+    totalAmount.textContent = `$${total.toFixed(2)}`;
+}
+
+function checkoutViaWhatsApp() {
+    if (cart.length === 0) {
+        showNotification('Your cart is empty!');
+        return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // Create the message
+    let message = '🎮 *New Game Order*\n\n';
+    message += '*Selected Games:*\n';
+    
+    cart.forEach(item => {
+        message += `▪️ ${item.title}\n`;
+        message += `   × ${item.quantity} copy(s)\n`;
+        message += `   × $${(item.price * item.quantity).toFixed(2)}\n\n`;
+    });
+    
+    message += '------------------------\n';
+    message += `*Total Amount:* $${total.toFixed(2)}\n\n`;
+    message += 'Please confirm my order. Thank you!';
+
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Create WhatsApp URL
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    
+    // Open WhatsApp in a new tab
+    window.open(whatsappURL, '_blank');
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Cart Modal
+    const cartModal = document.getElementById('cart-modal');
+    const cartLink = document.querySelector('.cart-link');
+    const closeModal = document.querySelector('.close-modal');
+    const checkoutBtn = document.querySelector('.checkout-btn');
+
+    if (cartLink) {
+        cartLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateCartUI();
+            cartModal.style.display = 'flex';
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            cartModal.style.display = 'none';
+        });
+    }
+
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', checkoutViaWhatsApp);
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === cartModal) {
+            cartModal.style.display = 'none';
+        }
+    });
+
+    // Initialize cart count
+    updateCartCount();
+});
 
 function showNotification(message) {
     const notification = document.createElement('div');
@@ -97,47 +154,10 @@ function showNotification(message) {
     document.body.appendChild(notification);
 
     setTimeout(() => {
-        notification.remove();
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
-
-function checkout() {
-    if (cart.length === 0) {
-        showNotification('Your cart is empty!');
-        return;
-    }
-
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const formattedTotal = formatCurrency(total);
-
-    const message = `Hello! I would like to purchase the following games:%0A%0A${
-        cart.map(item => {
-            const itemTotal = item.price * item.quantity;
-            const formattedPrice = formatCurrency(itemTotal);
-            return `${item.title} (${item.quantity}x) - ${formattedPrice.usd} / ${formattedPrice.lkr}`;
-        }).join('%0A')
-    }%0A%0ATotal: ${formattedTotal.usd} / ${formattedTotal.lkr}`;
-
-    window.open('https://chat.whatsapp.com/LR3TaNmO2OzGvAvkXMlFao', '_blank');
-}
-
-// Event Listeners
-cartLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    cartModal.classList.add('active');
-});
-
-closeModal.addEventListener('click', () => {
-    cartModal.classList.remove('active');
-});
-
-cartModal.addEventListener('click', (e) => {
-    if (e.target === cartModal) {
-        cartModal.classList.remove('active');
-    }
-});
-
-checkoutBtn.addEventListener('click', checkout);
 
 // Load cart from localStorage
 const savedCart = localStorage.getItem('cart');
