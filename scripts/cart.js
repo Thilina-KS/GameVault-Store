@@ -9,7 +9,7 @@ const cartLink = document.querySelector('.cart-link');
 
 // State
 let cart = [];
-const WHATSAPP_NUMBER = '94778945693'; // Your WhatsApp number without the + symbol
+const WHATSAPP_NUMBER = '94741871585'; // Your WhatsApp number without the + symbol or spaces
 
 // Functions
 function addToCart(gameId) {

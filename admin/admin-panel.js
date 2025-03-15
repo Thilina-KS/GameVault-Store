@@ -153,20 +153,12 @@ function handleGameSubmit(event) {
         const index = gamesData.findIndex(g => g.id === editingGameId);
         if (index !== -1) {
             gamesData[index] = gameData;
-            broadcastGameUpdate({
-                type: 'update',
-                game: gameData,
-                timestamp: Date.now()
-            });
+            broadcastUpdate('edit', gameData);
         }
     } else {
         // Add new game
         gamesData.push(gameData);
-        broadcastGameUpdate({
-            type: 'add',
-            game: gameData,
-            timestamp: Date.now()
-        });
+        broadcastUpdate('add', gameData);
     }
 
     // Save to localStorage
@@ -181,29 +173,17 @@ function handleGameSubmit(event) {
 }
 
 function deleteGame(gameId) {
-    if (confirm('Are you sure you want to delete this game?')) {
-        // Load current games
-        const currentGames = loadGames();
-        
-        // Filter out the deleted game
-        const updatedGames = currentGames.filter(game => game.id !== gameId);
-        
-        // Save the updated games list
-        saveGames(updatedGames);
-        
-        // Update the games array
-        gamesData = updatedGames;
-        
-        // Broadcast the change
-        broadcastGameUpdate({
-            type: 'delete',
-            gameId: gameId,
-            timestamp: Date.now()
-        });
-        
-        // Refresh the table
-        renderGamesTable();
-        showNotification('Game deleted successfully!');
+    const games = JSON.parse(localStorage.getItem('gamesData')) || [];
+    const gameToDelete = games.find(game => game.id === gameId);
+    if (gameToDelete) {
+        const confirmed = confirm(`Are you sure you want to delete ${gameToDelete.title}?`);
+        if (confirmed) {
+            const updatedGames = games.filter(game => game.id !== gameId);
+            localStorage.setItem('gamesData', JSON.stringify(updatedGames));
+            broadcastUpdate('delete', gameToDelete);
+            renderGamesTable();
+            showNotification('Game deleted successfully!');
+        }
     }
 }
 
@@ -238,6 +218,7 @@ function addGame(gameData) {
     };
     gamesData.push(newGame);
     saveGames(gamesData);
+    broadcastUpdate('add', newGame);
     renderGamesTable();
 }
 
@@ -246,22 +227,40 @@ function updateGame(gameId, updatedData) {
     if (index !== -1) {
         gamesData[index] = { ...gamesData[index], ...updatedData };
         saveGames(gamesData);
+        broadcastUpdate('edit', updatedData);
         renderGamesTable();
     }
 }
 
-// Broadcast channel for real-time updates
+// Create a broadcast channel for real-time updates
 const gameUpdateChannel = new BroadcastChannel('game-updates');
 
-function broadcastGameUpdate(updateData) {
-    // Save to localStorage with timestamp
-    localStorage.setItem('lastGameUpdate', JSON.stringify({
-        data: updateData,
+function broadcastUpdate(type, gameData) {
+    const updateData = {
+        type: type, // 'add', 'edit', or 'delete'
+        game: gameData,
         timestamp: Date.now()
-    }));
-    
-    // Broadcast the update
+    };
     gameUpdateChannel.postMessage(updateData);
+    
+    // Also update localStorage
+    const games = JSON.parse(localStorage.getItem('gamesData')) || [];
+    
+    switch(type) {
+        case 'add':
+            games.push(gameData);
+            break;
+        case 'edit':
+            const editIndex = games.findIndex(g => g.id === gameData.id);
+            if (editIndex !== -1) games[editIndex] = gameData;
+            break;
+        case 'delete':
+            const deleteIndex = games.findIndex(g => g.id === gameData.id);
+            if (deleteIndex !== -1) games.splice(deleteIndex, 1);
+            break;
+    }
+    
+    localStorage.setItem('gamesData', JSON.stringify(games));
 }
 
 // Initialize

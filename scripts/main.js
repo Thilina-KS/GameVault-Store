@@ -104,179 +104,92 @@ function filterGames() {
 searchInput.addEventListener('input', filterGames);
 categoryFilter.addEventListener('change', filterGames);
 
-// Game Update Handler
-const gameUpdateHandler = {
-    channel: new BroadcastChannel('game-updates'),
+// Real-time update handling
+const gameUpdateChannel = new BroadcastChannel('game-updates');
+let lastUpdateTimestamp = Date.now();
+
+gameUpdateChannel.onmessage = (event) => {
+    const update = event.data;
     
-    init() {
-        this.channel.onmessage = (event) => {
-            const update = event.data;
-            this.handleUpdate(update);
-        };
-        
-        // Check for updates that happened while page was closed
-        this.checkMissedUpdates();
-    },
+    // Update the games in localStorage
+    const games = JSON.parse(localStorage.getItem('gamesData')) || [];
     
-    checkMissedUpdates() {
-        const lastUpdate = localStorage.getItem('lastGameUpdate');
-        if (lastUpdate) {
-            try {
-                const { data, timestamp } = JSON.parse(lastUpdate);
-                const lastVisit = localStorage.getItem('lastVisit') || 0;
-                
-                if (timestamp > lastVisit && this.isValidUpdate(data)) {
-                    this.handleUpdate(data, true);
-                }
-            } catch (error) {
-                console.error('Error checking missed updates:', error);
+    switch(update.type) {
+        case 'add':
+            games.push(update.game);
+            showUpdateNotification('New Game Added', `${update.game.title} has been added to the store!`);
+            break;
+            
+        case 'edit':
+            const editIndex = games.findIndex(g => g.id === update.game.id);
+            if (editIndex !== -1) {
+                games[editIndex] = update.game;
+                showUpdateNotification('Game Updated', `${update.game.title} has been updated!`);
             }
-        }
-        
-        // Update last visit timestamp
-        localStorage.setItem('lastVisit', Date.now().toString());
-    },
-
-    isValidUpdate(update) {
-        if (!update || !update.type) return false;
-
-        if (update.type === 'delete') {
-            return update.gameId != null;
-        }
-
-        if (update.type === 'add' || update.type === 'update') {
-            const game = update.game;
-            return game && 
-                   game.id != null &&
-                   game.title &&
-                   game.image &&
-                   game.originalPrice != null &&
-                   game.discountedPrice != null &&
-                   game.genre &&
-                   game.releaseDate &&
-                   game.systemRequirements;
-        }
-
-        return false;
-    },
-    
-    handleUpdate(update, isMissed = false) {
-        // Validate the update before processing
-        if (!this.isValidUpdate(update)) {
-            console.warn('Invalid update received:', update);
-            return;
-        }
-
-        // Get current games from localStorage
-        const savedGames = localStorage.getItem('gamesData');
-        if (savedGames) {
-            window.games = JSON.parse(savedGames);
-        }
-
-        // Handle different update types
-        switch (update.type) {
-            case 'add':
-                if (!window.games.some(g => g.id === update.game.id)) {
-                    window.games.push(update.game);
-                }
-                break;
-            case 'update':
-                const updateIndex = window.games.findIndex(g => g.id === update.game.id);
-                if (updateIndex !== -1) {
-                    window.games[updateIndex] = update.game;
-                }
-                break;
-            case 'delete':
-                window.games = window.games.filter(g => g.id !== update.gameId);
-                break;
-        }
-
-        // Update filtered games
-        filteredGames = [...window.games];
-        
-        // Apply current filters
-        filterGames();
-        
-        let updateDetails;
-        switch (update.type) {
-            case 'add':
-                updateDetails = {
-                    title: 'New Game Added!',
-                    message: `"${update.game.title}" is now available`,
-                    icon: '🎮'
-                };
-                break;
-            case 'update':
-                updateDetails = {
-                    title: 'Game Updated',
-                    message: `"${update.game.title}" has been updated`,
-                    icon: '📝'
-                };
-                break;
-            case 'delete':
-                updateDetails = {
-                    title: 'Game Removed',
-                    message: 'A game has been removed from the store',
-                    icon: '🗑️'
-                };
-                break;
-        }
-        
-        if (updateDetails) {
-            showUpdateNotification(updateDetails, isMissed);
-        }
+            break;
+            
+        case 'delete':
+            const deleteIndex = games.findIndex(g => g.id === update.game.id);
+            if (deleteIndex !== -1) {
+                games.splice(deleteIndex, 1);
+                showUpdateNotification('Game Removed', `${update.game.title} has been removed from the store.`);
+            }
+            break;
     }
+    
+    localStorage.setItem('gamesData', JSON.stringify(games));
+    lastUpdateTimestamp = update.timestamp;
+    
+    // Refresh the games display
+    renderGames();
 };
 
-function showUpdateNotification(details, isMissed = false) {
+function showUpdateNotification(title, message) {
     const notification = document.createElement('div');
     notification.className = 'game-update-notification';
     
-    const missedTag = isMissed ? '<span class="missed-update">While you were away</span>' : '';
-    
     notification.innerHTML = `
         <div class="notification-content">
-            <div class="notification-icon">${details.icon}</div>
-            <div class="notification-text">
-                <h4>${details.title}</h4>
-                ${missedTag}
-                <p>${details.message}</p>
+            <div class="notification-icon">
+                <i class="fas fa-sync"></i>
             </div>
-            <button class="notification-close">&times;</button>
+            <div class="notification-text">
+                <h4>${title}</h4>
+                <p>${message}</p>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `;
     
     document.body.appendChild(notification);
     
-    // Add close button functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
+    // Auto-remove notification after 5 seconds
+    setTimeout(() => {
         notification.classList.add('fade-out');
         setTimeout(() => notification.remove(), 300);
-    });
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (document.body.contains(notification)) {
-            notification.classList.add('fade-out');
-            setTimeout(() => notification.remove(), 300);
-        }
     }, 5000);
+}
+
+// Check for missed updates on page load
+function checkForMissedUpdates() {
+    const lastStoredUpdate = JSON.parse(localStorage.getItem('lastGameUpdate'));
+    if (lastStoredUpdate && lastStoredUpdate.timestamp > lastUpdateTimestamp) {
+        showUpdateNotification(
+            'Store Updated',
+            'The game catalog has been updated while you were away. Refreshing content...'
+        );
+        renderGames();
+    }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    checkForMissedUpdates();
     loadGames();
     renderGames(filteredGames);
     
-    // Initialize game update handler
-    gameUpdateHandler.init();
-
-    // Start the game data sync
-    if (window.gameDataManager) {
-        window.gameDataManager.startSyncInterval();
-    }
-
     // Mobile Menu Functionality
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navLinks = document.querySelector('.nav-links');
