@@ -12,10 +12,13 @@ let gamesData = [];
 function loadGames() {
     try {
         const savedGames = localStorage.getItem('gamesData');
+        console.log('Loading games from localStorage:', savedGames); // Debug log
+        
         if (savedGames) {
             const parsedGames = JSON.parse(savedGames);
             if (Array.isArray(parsedGames)) {
                 gamesData = parsedGames;
+                console.log('Successfully loaded games:', gamesData); // Debug log
                 return true;
             }
         }
@@ -23,16 +26,15 @@ function loadGames() {
         console.error('Error loading games:', error);
     }
     
+    console.log('No games found, initializing empty array'); // Debug log
     gamesData = [];
     return false;
 }
 
 function saveGames() {
     try {
+        console.log('Saving games:', gamesData); // Debug log
         localStorage.setItem('gamesData', JSON.stringify(gamesData));
-        localStorage.setItem('lastGameUpdate', JSON.stringify({
-            timestamp: Date.now()
-        }));
         return true;
     } catch (error) {
         console.error('Error saving games:', error);
@@ -138,7 +140,9 @@ function handleGameSubmit(event) {
         }
     };
 
-    // Update local state and broadcast
+    console.log('Submitting game data:', gameData); // Debug log
+
+    // Update local state
     if (editingGameId) {
         const index = gamesData.findIndex(g => g.id === editingGameId);
         if (index !== -1) {
@@ -148,12 +152,12 @@ function handleGameSubmit(event) {
         gamesData.push(gameData);
     }
 
-    // Save changes
+    // Save to localStorage first
     if (saveGames()) {
-        // Broadcast update
+        // Then broadcast the update
         broadcastUpdate(editingGameId ? 'edit' : 'add', gameData);
         
-        // Refresh table and close modal
+        // Update UI
         renderGamesTable();
         closeGameModal();
         showNotification(editingGameId ? 'Game updated successfully!' : 'Game added successfully!');
@@ -169,18 +173,22 @@ function deleteGame(gameId) {
     if (gameToDelete) {
         const confirmed = confirm(`Are you sure you want to delete ${gameToDelete.title}?`);
         if (confirmed) {
+            console.log('Deleting game:', gameToDelete); // Debug log
+            
             // Remove from local state
             gamesData = gamesData.filter(game => game.id !== gameId);
             
-            // Save changes
+            // Save to localStorage first
             if (saveGames()) {
+                // Then broadcast the update
                 broadcastUpdate('delete', gameToDelete);
+                
+                // Update UI
                 renderGamesTable();
                 showNotification('Game deleted successfully!');
             } else {
                 showNotification('Error deleting game. Please try again.');
-                // Reload games to ensure consistent state
-                loadGames();
+                loadGames(); // Reload games to ensure consistent state
                 renderGamesTable();
             }
         }
@@ -233,13 +241,13 @@ function broadcastUpdate(type, gameData) {
         timestamp: Date.now()
     };
     
-    // Broadcast the update
+    console.log('Broadcasting update:', updateData); // Debug log
     gameUpdateChannel.postMessage(updateData);
 }
 
 // Listen for updates from other admin tabs
 gameUpdateChannel.onmessage = (event) => {
-    const update = event.data;
+    console.log('Received update in admin panel:', event.data); // Debug log
     
     // Reload games from localStorage to ensure consistency
     loadGames();
@@ -248,10 +256,14 @@ gameUpdateChannel.onmessage = (event) => {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing admin panel...'); // Debug log
+    
     // Load games from localStorage
     loadGames();
     renderGamesTable();
 
-    // Set up event listeners for the game form
+    // Set up event listeners
     gameForm.addEventListener('submit', handleGameSubmit);
+    
+    console.log('Admin panel initialization complete'); // Debug log
 }); 

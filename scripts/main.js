@@ -3,6 +3,9 @@ const gamesContainer = document.querySelector('.games-container');
 const searchInput = document.getElementById('search');
 const categoryFilter = document.getElementById('category-filter');
 
+// Constants
+const USD_TO_LKR = 320; // Define the conversion rate
+
 // State
 let filteredGames = [];
 window.games = [];
@@ -12,11 +15,14 @@ function loadGames() {
     try {
         // Load games from localStorage
         const savedGames = localStorage.getItem('gamesData');
+        console.log('Loaded games from localStorage:', savedGames); // Debug log
+        
         if (savedGames) {
             const parsedGames = JSON.parse(savedGames);
             if (Array.isArray(parsedGames)) {
                 window.games = parsedGames;
-                filteredGames = [...window.games];
+                filteredGames = [...parsedGames];
+                console.log('Successfully loaded games:', window.games); // Debug log
                 return true;
             }
         }
@@ -24,7 +30,7 @@ function loadGames() {
         console.error('Error loading games:', error);
     }
     
-    // If we get here, either there were no games or there was an error
+    console.log('No games found, initializing empty arrays'); // Debug log
     window.games = [];
     filteredGames = [];
     return false;
@@ -46,7 +52,9 @@ function formatCurrency(usdPrice) {
 }
 
 function renderGames(gamesToRender) {
-    if (!gamesToRender || !gamesToRender.length) {
+    console.log('Rendering games:', gamesToRender); // Debug log
+    
+    if (!gamesToRender || !Array.isArray(gamesToRender) || gamesToRender.length === 0) {
         gamesContainer.innerHTML = '<div class="no-games">No games available</div>';
         return;
     }
@@ -54,6 +62,7 @@ function renderGames(gamesToRender) {
     gamesContainer.innerHTML = gamesToRender.map(game => {
         // Validate game object and its properties
         if (!game || typeof game !== 'object') {
+            console.warn('Invalid game object:', game); // Debug log
             return '';
         }
 
@@ -109,14 +118,15 @@ function filterGames() {
 }
 
 // Event Listeners
-searchInput.addEventListener('input', filterGames);
-categoryFilter.addEventListener('change', filterGames);
+searchInput?.addEventListener('input', filterGames);
+categoryFilter?.addEventListener('change', filterGames);
 
 // Real-time update handling
 const gameUpdateChannel = new BroadcastChannel('game-updates');
-let lastUpdateTimestamp = Date.now();
 
 gameUpdateChannel.onmessage = (event) => {
+    console.log('Received update:', event.data); // Debug log
+    
     const update = event.data;
     
     // Update both window.games and filteredGames
@@ -143,11 +153,8 @@ gameUpdateChannel.onmessage = (event) => {
             break;
     }
     
-    // Update localStorage
+    // Update localStorage and refresh display
     localStorage.setItem('gamesData', JSON.stringify(window.games));
-    lastUpdateTimestamp = update.timestamp;
-    
-    // Update filtered games and re-render
     filteredGames = [...window.games];
     filterGames();
 };
@@ -202,14 +209,15 @@ function checkForMissedUpdates() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // First load games from localStorage
-    loadGames();
+    console.log('Initializing main.js...'); // Debug log
     
-    // Then check for any missed updates
-    checkForMissedUpdates();
+    // First load games
+    loadGames();
     
     // Initial render
     filterGames();
+    
+    console.log('Initialization complete. Current games:', window.games); // Debug log
     
     // Mobile Menu Functionality
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
