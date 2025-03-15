@@ -27,26 +27,18 @@
     <header class="header">
         <nav class="nav-container">
             <div class="logo">
-                <a href="/">
-                    <span class="game">Game</span><span class="vault">Vault</span>
-                </a>
+                <a href="index.html">GameVault Store</a>
             </div>
-            <div class="nav-links">
-                <a href="/" class="active">Home</a>
-                <a href="#games">Games</a>
-                <a href="#cart" class="cart-link">
-                    Cart <span class="cart-count">0</span>
-                </a>
-                <a href="admin/login.html" class="admin-link">
-                    <i class="fas fa-lock"></i> Admin
-                </a>
-            </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+            <button class="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="#" class="cart-link" onclick="openCart()">
+                    Cart
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
         </nav>
     </header>
 
@@ -69,17 +61,12 @@
             <div class="filters">
                 <select id="category-filter" class="filter-select">
                     <option value="">All Categories</option>
-                    <option value="fps">FPS</option>
-                    <option value="moba">MOBA</option>
-                    <option value="action">Action</option>
-                    <option value="rpg">RPG</option>
-                    <option value="sports">Sports</option>
-                    <option value="battle-royale">Battle Royale</option>
-                    <option value="simulation">Simulation</option>
-                    <option value="survival">Survival</option>
-                    <option value="puzzle">Puzzle</option>
-                    <option value="sandbox">Sandbox</option>
-                    <option value="party">Party</option>
+                    <option value="Action">Action</option>
+                    <option value="RPG">RPG</option>
+                    <option value="FPS">FPS</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Survival">Survival</option>
+                    <option value="Fighting">Fighting</option>
                 </select>
             </div>
         </div>
@@ -129,10 +116,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="scripts/games.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/cart.js"></script>
     <script src="scripts/main.js"></script>
+    <script src="scripts/cart.js"></script>
     <script src="scripts/dark-mode.js"></script>
     <script src="scripts/achievements.js"></script>
     <script src="scripts/ping.js"></script>
