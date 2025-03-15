@@ -5,21 +5,29 @@ const categoryFilter = document.getElementById('category-filter');
 
 // State
 let filteredGames = [];
+window.games = [];
 
 // Functions
 function loadGames() {
-    // Load games from localStorage if available
-    const savedGames = localStorage.getItem('gamesData');
-    if (savedGames) {
-        window.games = JSON.parse(savedGames);
-    } else if (typeof games !== 'undefined') {
-        // If localStorage is empty but games.js is loaded, use that
-        window.games = [...games];
-    } else {
-        // Fallback to empty array if no games data is available
-        window.games = [];
+    try {
+        // Load games from localStorage
+        const savedGames = localStorage.getItem('gamesData');
+        if (savedGames) {
+            const parsedGames = JSON.parse(savedGames);
+            if (Array.isArray(parsedGames)) {
+                window.games = parsedGames;
+                filteredGames = [...window.games];
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading games:', error);
     }
-    filteredGames = [...window.games];
+    
+    // If we get here, either there were no games or there was an error
+    window.games = [];
+    filteredGames = [];
+    return false;
 }
 
 function formatCurrency(usdPrice) {
@@ -141,7 +149,7 @@ gameUpdateChannel.onmessage = (event) => {
     
     // Update filtered games and re-render
     filteredGames = [...window.games];
-    filterGames(); // This will apply current search/filter and render
+    filterGames();
 };
 
 function showUpdateNotification(title, message) {
@@ -174,23 +182,34 @@ function showUpdateNotification(title, message) {
 
 // Check for missed updates on page load
 function checkForMissedUpdates() {
-    const lastStoredUpdate = JSON.parse(localStorage.getItem('lastGameUpdate'));
-    if (lastStoredUpdate && lastStoredUpdate.timestamp > lastUpdateTimestamp) {
-        showUpdateNotification(
-            'Store Updated',
-            'The game catalog has been updated while you were away. Refreshing content...'
-        );
-        renderGames();
+    try {
+        const lastStoredUpdate = localStorage.getItem('lastGameUpdate');
+        if (lastStoredUpdate) {
+            const updateData = JSON.parse(lastStoredUpdate);
+            if (updateData.timestamp > lastUpdateTimestamp) {
+                showUpdateNotification(
+                    'Store Updated',
+                    'The game catalog has been updated while you were away. Refreshing content...'
+                );
+                loadGames(); // Reload games from localStorage
+                filterGames(); // Apply current filters and render
+            }
+        }
+    } catch (error) {
+        console.error('Error checking for updates:', error);
     }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // First load games from localStorage
     loadGames();
-    window.games = window.games || [];
-    filteredGames = [...window.games];
+    
+    // Then check for any missed updates
     checkForMissedUpdates();
-    renderGames(filteredGames);
+    
+    // Initial render
+    filterGames();
     
     // Mobile Menu Functionality
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
