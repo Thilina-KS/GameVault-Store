@@ -167,7 +167,34 @@ const gameUpdateHandler = {
             return;
         }
 
-        loadGames();
+        // Get current games from localStorage
+        const savedGames = localStorage.getItem('gamesData');
+        if (savedGames) {
+            window.games = JSON.parse(savedGames);
+        }
+
+        // Handle different update types
+        switch (update.type) {
+            case 'add':
+                if (!window.games.some(g => g.id === update.game.id)) {
+                    window.games.push(update.game);
+                }
+                break;
+            case 'update':
+                const updateIndex = window.games.findIndex(g => g.id === update.game.id);
+                if (updateIndex !== -1) {
+                    window.games[updateIndex] = update.game;
+                }
+                break;
+            case 'delete':
+                window.games = window.games.filter(g => g.id !== update.gameId);
+                break;
+        }
+
+        // Update filtered games
+        filteredGames = [...window.games];
+        
+        // Apply current filters
         filterGames();
         
         let updateDetails;
